@@ -8,25 +8,24 @@ Embedded C++ firmware for a Raspberry Pi Pico running on a Pimoroni Pico Display
 
 ## Build System
 
-This is a CMake cross-compilation project targeting the RP2040. Both SDKs are siblings of this repo:
+CMake cross-compilation project targeting the RP2040, using `CMakePresets.json`. Both SDKs are siblings of this repo:
 
-- **Pico SDK**: `../pico-sdk` — set `PICO_SDK_PATH` to this path
-- **Pimoroni Pico libraries**: `../pimoroni-pico` — auto-detected as sibling of `PICO_SDK_PATH`
+- **Pico SDK**: `../pico-sdk`
+- **Pimoroni Pico libraries**: `../pimoroni-pico` — auto-detected as sibling of the Pico SDK
 
 ```bash
-# Configure (from repo root, targeting a build directory)
-cmake -B cmake-build-debug -DCMAKE_BUILD_TYPE=Debug
-cmake -B cmake-build-release -DCMAKE_BUILD_TYPE=Release
+# Configure
+cmake --preset debug
+cmake --preset release
 
 # Build
-cmake --build cmake-build-debug
-cmake --build cmake-build-release
+cmake --build --preset debug
+cmake --build --preset release
 
-# Flash (drag-and-drop the .uf2, or use picotool)
-# Output artifacts are in cmake-build-debug/ or cmake-build-release/
+# Flash: drag-and-drop build/debug/src/morse-trainer.uf2 onto the Pico in BOOTSEL mode
 ```
 
-The build produces `morse-trainer.uf2` (and `.elf`, `.bin`, `.hex`, `.map`) in the build directory.
+Build artifacts (`morse-trainer.uf2`, `.elf`, `.bin`, `.hex`, `.map`) land in `build/debug/src/` or `build/release/src/`.
 
 Compiler flags include `-Wall -Werror` — all warnings are errors.
 
@@ -44,9 +43,8 @@ Uses the Pimoroni `PicoGraphics_PenRGB332` graphics library rendered through an 
 
 Four buttons: **A**, **B**, **X**, **Y** (mapped to `PicoDisplay::A/B/X/Y`).
 
-- Short press / Long press semantics are central to the UX (short ≥ 60 ms, long ≥ 3× short = ~180 ms).
-- `src/button-handler.h` / `button-handler.cpp` define `troublemaker::ButtonHandler` — currently a stub.
-- The TODO in `my_pico_display.cpp` indicates buttons should move to IRQ handlers rather than polling.
+- Short press / Long press semantics are central to the UX (short ≥ 60 ms, long ≥ 180 ms).
+- `src/button-handler.h` / `button-handler.cpp` implement `troublemaker::ButtonHandler` — IRQ-driven, fires a `ButtonCallback(ButtonId, PressType)` on release. Presses < 60 ms are discarded as debounce.
 
 ### Button Mappings (from design doc)
 
@@ -68,9 +66,8 @@ Four buttons: **A**, **B**, **X**, **Y** (mapped to `PicoDisplay::A/B/X/Y`).
 - `pico_display` / `pico_graphics` — display abstraction
 - `st7789` — SPI display driver
 - `rgbled` — RGB LED control
-- `button` — button input
 - `bitmap_fonts` / `hershey_fonts` — text rendering
-- Hardware: `hardware_spi`, `hardware_pwm`, `hardware_pio`, `hardware_dma`
+- Hardware: `hardware_spi`, `hardware_pwm`, `hardware_pio`, `hardware_dma`, `hardware_gpio`
 
 ### Large Generated File
 

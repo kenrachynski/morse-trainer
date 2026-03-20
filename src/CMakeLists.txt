@@ -2,7 +2,7 @@ add_executable(
   ${NAME}
   my_pico_display.cpp
   image_data.cpp
-)
+        button-handler.h button-handler.cpp)
 
 include(common/pimoroni_bus)
 include(drivers/button/button)

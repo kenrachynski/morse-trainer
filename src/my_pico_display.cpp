@@ -61,6 +61,13 @@ void draw_pinwheel(uint32_t index, uint32_t rays = RAYS, uint32_t ray_width = RA
     }
 }
 
+void button_handler(uint gpio, uint32_t events) {
+    if (gpio == PicoDisplay::A) {
+        // handle button A
+        //TODO record button was pressed/unpressed
+    }
+}
+
 int main() {
     st7789.set_backlight(100);
 
@@ -97,6 +104,7 @@ int main() {
     Pen WHITE = graphics.create_pen(255, 255, 255);
 
     while (true) {
+        //TODO change test buttons to IRQ handlers
         //test buttons
         if(button_a.raw()) direction = 1;
         if(button_b.raw()) direction = -1;

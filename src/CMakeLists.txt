@@ -1,6 +1,6 @@
 add_executable(
   ${NAME}
-  my_pico_display.cpp
+  morse_trainer.cpp
   image_data.cpp
         button-handler.h button-handler.cpp)
 

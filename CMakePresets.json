@@ -8,7 +8,7 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "PICO_SDK_PATH": "${sourceDir}/../pico-sdk",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/../pico-sdk/cmake/preload/toolchains/pico_arm_gcc.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/../pico-sdk/cmake/preload/toolchains/pico_arm_cortex_m0plus_gcc.cmake"
       }
     },
     {

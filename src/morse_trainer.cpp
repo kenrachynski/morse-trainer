@@ -7,19 +7,15 @@
 #include "drivers/st7789/st7789.hpp"
 #include "libraries/pico_graphics/pico_graphics.hpp"
 #include "rgbled.hpp"
-#include "button.hpp"
+#include "button-handler.h"
 
 using namespace pimoroni;
+using namespace troublemaker;
 
 ST7789 st7789(PicoDisplay::WIDTH, PicoDisplay::HEIGHT, ROTATE_0, false, get_spi_pins(BG_SPI_FRONT));
 PicoGraphics_PenRGB332 graphics(st7789.width, st7789.height, nullptr);
 
 RGBLED led(PicoDisplay::LED_R, PicoDisplay::LED_G, PicoDisplay::LED_B);
-
-Button button_a(PicoDisplay::A);
-Button button_b(PicoDisplay::B);
-Button button_x(PicoDisplay::X);
-Button button_y(PicoDisplay::Y);
 
 // HSV Conversion expects float inputs in the range of 0.00-1.00 for each channel
 // Outputs are rgb in the range 0-255 for each channel
@@ -61,15 +57,16 @@ void draw_pinwheel(uint32_t index, uint32_t rays = RAYS, uint32_t ray_width = RA
     }
 }
 
-void button_handler(uint gpio, uint32_t events) {
-    if (gpio == PicoDisplay::A) {
-        // handle button A
-        //TODO record button was pressed/unpressed
-    }
-}
-
 int main() {
     st7789.set_backlight(100);
+
+    uint32_t direction = 1;
+
+    ButtonHandler buttons;
+    buttons.init([&direction](ButtonId id, PressType type) {
+        if (id == ButtonId::A && type == PressType::SHORT) direction = 1;
+        if (id == ButtonId::B && type == PressType::SHORT) direction = -1;
+    });
 
     struct pt {
         float x;
@@ -95,7 +92,6 @@ int main() {
 
     // an index
     uint32_t index = 0;
-    uint32_t direction = 1;
 
     // various pens
     Pen BG = graphics.create_pen(120, 40, 60);
@@ -104,14 +100,6 @@ int main() {
     Pen WHITE = graphics.create_pen(255, 255, 255);
 
     while (true) {
-        //TODO change test buttons to IRQ handlers
-        //test buttons
-        if(button_a.raw()) direction = 1;
-        if(button_b.raw()) direction = -1;
-
-//        if(button_x.raw()) text_location.y -= 1;
-//        if(button_y.raw()) text_location.y += 1;
-
         // set background
         graphics.set_pen(BG);
         graphics.clear();
@@ -128,11 +116,6 @@ int main() {
             graphics.set_pen(shape.pen);
             graphics.circle(Point(shape.x, shape.y), shape.r);
         }
-
-        // cycle RGB LED dim to bright
-//        float led_step = fmod(index / 20.0f, M_PI * 2.0f);
-//        int r = (sin(led_step) * 32.0f) + 32.0f;
-//        led.set_rgb(r, r / 1.2f, r);
 
         // Since HSV takes a float from 0.0 to 1.0 indicating hue,
         // then we can divide millis by the number of milliseconds
@@ -151,7 +134,6 @@ int main() {
         poly.push_back(Point(30, 45));
 
         graphics.set_pen(YELLOW);
-        //pico_display.pixel(Point(0, 0));
         graphics.polygon(poly);
 
         // create one triangle

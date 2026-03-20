@@ -12,7 +12,7 @@ using namespace pimoroni;
 
 ButtonHandler* ButtonHandler::instance_ = nullptr;
 
-static constexpr uint BUTTON_GPIOS[4] = {
+static constexpr unsigned int BUTTON_GPIOS[4] = {
     PicoDisplay::A,
     PicoDisplay::B,
     PicoDisplay::X,
@@ -38,13 +38,13 @@ void ButtonHandler::init(ButtonCallback callback) {
     }
 }
 
-void ButtonHandler::gpio_irq_handler(uint gpio, uint32_t events) {
+void ButtonHandler::gpio_irq_handler(unsigned int gpio, unsigned int32_t events) {
     if (instance_) {
         instance_->on_event(gpio, events);
     }
 }
 
-void ButtonHandler::on_event(uint gpio, uint32_t events) {
+void ButtonHandler::on_event(unsigned int gpio, unsigned int32_t events) {
     int idx = gpio_to_index(gpio);
     if (idx < 0) return;
 
@@ -57,7 +57,7 @@ void ButtonHandler::on_event(uint gpio, uint32_t events) {
         if (!pressed_[idx]) return;
         pressed_[idx] = false;
 
-        uint32_t duration_ms = static_cast<uint32_t>(
+        unsigned int32_t duration_ms = static_cast<unsigned int32_t>(
             (time_us_64() - press_start_us_[idx]) / 1000);
 
         if (duration_ms < SHORT_PRESS_MS) return; // debounce
@@ -69,7 +69,7 @@ void ButtonHandler::on_event(uint gpio, uint32_t events) {
     }
 }
 
-int ButtonHandler::gpio_to_index(uint gpio) const {
+int ButtonHandler::gpio_to_index(unsigned int gpio) const {
     for (int i = 0; i < 4; i++) {
         if (BUTTON_GPIOS[i] == gpio) return i;
     }

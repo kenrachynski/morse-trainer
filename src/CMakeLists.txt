@@ -31,14 +31,19 @@ include(libraries/pico_graphics/pico_graphics)
 # Pull in pico libraries that we need
 target_link_libraries(${NAME} pico_stdlib hardware_spi hardware_pwm hardware_pio hardware_dma hardware_gpio hardware_flash hardware_sync rgbled pico_display pico_graphics st7789)
 
-# Generate version header at build time (picks up current git SHA on every build)
-add_custom_target(gen_version ALL
+# Generate version header at build time (picks up current git SHA on every build).
+# DEPENDS on .git/index so Ninja re-runs this — and recompiles about_screen.cpp —
+# after every commit, in the correct order within a single cmake --build.
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/version_generated.h
     COMMAND ${CMAKE_COMMAND}
         -DOUTPUT=${CMAKE_CURRENT_BINARY_DIR}/version_generated.h
         -DSRC_DIR=${CMAKE_SOURCE_DIR}
         -P ${CMAKE_SOURCE_DIR}/cmake/gen_version.cmake
+    DEPENDS ${CMAKE_SOURCE_DIR}/.git/index
     VERBATIM
 )
+add_custom_target(gen_version DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/version_generated.h)
 add_dependencies(${NAME} gen_version)
 target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 

@@ -45,14 +45,19 @@ void ButtonHandler::gpio_irq_handler(unsigned int gpio, uint32_t events) {
 }
 
 void ButtonHandler::on_event(unsigned int gpio, uint32_t events) {
+    gpio_acknowledge_irq(gpio, events);
+
     int idx = gpio_to_index(gpio);
     if (idx < 0) return;
 
+    // Handle both edges independently — both bits can be set in one call when bouncing
     if (events & GPIO_IRQ_EDGE_FALL) {
         // Active-low: falling edge = button pressed
         pressed_[idx] = true;
         press_start_us_[idx] = time_us_64();
-    } else if (events & GPIO_IRQ_EDGE_RISE) {
+    }
+
+    if (events & GPIO_IRQ_EDGE_RISE) {
         // Rising edge = button released
         if (!pressed_[idx]) return;
         pressed_[idx] = false;

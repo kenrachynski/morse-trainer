@@ -60,7 +60,7 @@ void draw_pinwheel(uint32_t index, uint32_t rays = RAYS, uint32_t ray_width = RA
 int main() {
     st7789.set_backlight(100);
 
-    uint32_t direction = 1;
+    volatile uint32_t direction = 1;
 
     ButtonHandler buttons;
     buttons.init([&direction](ButtonId id, PressType type) {

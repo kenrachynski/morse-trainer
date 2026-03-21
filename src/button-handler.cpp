@@ -29,12 +29,9 @@ void ButtonHandler::init(ButtonCallback callback) {
         gpio_pull_up(BUTTON_GPIOS[i]);
     }
 
-    // One callback handles all GPIO IRQs on this core
-    gpio_set_irq_enabled_with_callback(BUTTON_GPIOS[0],
-        GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_irq_handler);
-    for (int i = 1; i < 4; i++) {
-        gpio_set_irq_enabled(BUTTON_GPIOS[i],
-            GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
+    for (int i = 0; i < 4; i++) {
+        gpio_set_irq_enabled_with_callback(BUTTON_GPIOS[i],
+            GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &gpio_irq_handler);
     }
 }
 

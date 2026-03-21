@@ -34,13 +34,9 @@ Compiler flags include `-Wall -Werror` — all warnings are errors.
 
 ### Build-time Metadata
 
-`src/CMakeLists.txt` injects compile-time definitions via `target_compile_definitions`:
+Static strings (`APP_NAME`, `APP_AUTHOR`, `APP_VERSION`) are injected via `target_compile_definitions`.
 
-- `APP_NAME`, `APP_AUTHOR`, `APP_VERSION` — hardcoded strings
-- `APP_BUILD_DATE` — from `string(TIMESTAMP ...)` at configure time
-- `APP_GIT_SHA` — from `execute_process(git rev-parse --short HEAD)`
-
-Used by `AboutScreen` to display version info.
+`APP_GIT_SHA` and `APP_BUILD_DATE` are written into `version_generated.h` by `cmake/gen_version.cmake`, which runs as an `add_custom_command(OUTPUT)` with `DEPENDS .git/index`. This means every `cmake --build` after a commit regenerates the header and recompiles `about_screen.cpp` in the correct order — no reconfigure needed. `about_screen.cpp` includes `version_generated.h` directly.
 
 ## Architecture
 

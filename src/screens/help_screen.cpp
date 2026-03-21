@@ -20,6 +20,7 @@ const HelpScreen::NavEntry HelpScreen::NAV_MORSE[] = {
     {"B-S:", "Reset input"},
     {"B-L:", "Toggle clue"},
     {"X-S:", "Next trial"},
+    {"X-L:", "Toggle input"},
     {"A-L:", "Reset App"},
 };
 
@@ -47,7 +48,7 @@ const HelpScreen::NavEntry HelpScreen::NAV_IDLE[] = {
 
 const HelpScreen::NavPage HelpScreen::NAV_PAGES[4] = {
     {"Menu",          NAV_MENU,     4},
-    {"Morse Trainer", NAV_MORSE,    6},
+    {"Morse Trainer", NAV_MORSE,    7},
     {"Resistor Calc", NAV_RESISTOR, 8},
     {"Idle",          NAV_IDLE,     8},
 };

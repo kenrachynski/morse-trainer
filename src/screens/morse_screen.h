@@ -53,7 +53,8 @@ private:
     char     target_       = 'A';
     char     input_[8]{};          // dots/dashes + null terminator
     int      input_len_    = 0;
-    bool     clue_visible_ = false;
+    bool     clue_visible_  = false;
+    bool     input_visible_ = true;
     State    state_        = State::WAITING;
 
     uint64_t y_down_us_    = 0;    // timestamp of Y press

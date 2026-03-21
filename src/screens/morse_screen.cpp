@@ -40,6 +40,7 @@ void MorseScreen::on_enter() {
     input_len_     = 0;
     input_[0]      = '\0';
     clue_visible_  = false;
+    input_visible_ = true;
     state_         = State::WAITING;
     y_down_us_     = 0;
     last_input_us_ = 0;
@@ -164,8 +165,7 @@ void MorseScreen::update() {
     graphics_.text(target_str, Point(104, 15), 240, 4);
 
     // Input sequence — centred at mid-screen
-    if (input_len_ > 0) {
-        // scale=2: ~12px per symbol; rough centring
+    if (input_visible_ && input_len_ > 0) {
         int x = (240 - input_len_ * 12) / 2;
         if (x < 5) x = 5;
         graphics_.set_pen(YELLOW);
@@ -185,6 +185,12 @@ void MorseScreen::update() {
     if (state_ == State::CORRECT) {
         graphics_.set_pen(GREEN);
         graphics_.text("correct!", Point(60, 95), 240, 2);
+        if (!input_visible_) {
+            const char* code = code_for(target_);
+            int x = (240 - static_cast<int>(strlen(code)) * 12) / 2;
+            if (x < 5) x = 5;
+            graphics_.text(code, Point(x, 112), 240, 2);
+        }
     } else if (state_ == State::WRONG) {
         graphics_.set_pen(RED);
         graphics_.text("wrong", Point(87, 90), 240, 2);
@@ -251,5 +257,7 @@ void MorseScreen::on_button(ButtonId id, PressType type) {
         clue_visible_ = false;
         state_        = State::WAITING;
         led_.set_rgb(0, 0, 0);
+    } else if (id == ButtonId::X && type == PressType::LONG) {
+        input_visible_ = !input_visible_;
     }
 }

@@ -182,18 +182,24 @@ void ResistorScreen::update() {
     graphics_.set_pen(graphics_.create_pen(nr, ng, nb));
     graphics_.text(name, Point(nx, 74), 240, 2);
 
-    // Resistance value — centered in left 175px, scale=4 (~24px/char)
+    // Resistance value — hershey font, centred across full width
     char res_buf[16];
     format_resistance(res_buf, sizeof(res_buf));
-    int rx = (175 - static_cast<int>(strlen(res_buf)) * 24) / 2;
+    graphics_.set_font("sans");
+    graphics_.set_thickness(2);
+    float rs = 1.5f;
+    int rw = graphics_.measure_text(res_buf, rs);
+    int rx = (240 - rw) / 2;
     if (rx < 5) rx = 5;
     graphics_.set_pen(WHITE);
-    graphics_.text(res_buf, Point(rx, 90), 175, 4);
+    graphics_.text(res_buf, Point(rx, 108), 240, rs);
+    graphics_.set_font(&font6);
+    graphics_.set_thickness(1);
 
-    // Tolerance + band mode stacked on the right (grey, scale=1 ~6px/char)
+    // Tolerance left, band mode right, on one line below the value
     graphics_.set_pen(GREY);
-    graphics_.text(tolerance_str(), Point(180, 95),  240, 1);
-    graphics_.text(five_band_ ? "[5-band]" : "[4-band]", Point(180, 110), 240, 1);
+    graphics_.text(tolerance_str(),                    Point(  5, 122), 120, 1);
+    graphics_.text(five_band_ ? "[5-band]" : "[4-band]", Point(140, 122), 240, 1);
 }
 
 // ── on_button ─────────────────────────────────────────────────────────────────

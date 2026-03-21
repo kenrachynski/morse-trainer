@@ -17,8 +17,11 @@ IdleScreen::IdleScreen(PicoGraphics_PenRGB332& graphics, RGBLED& led, SwitchFn s
 
 void IdleScreen::on_enter() {
     init_balls();
-    index_     = 0;
-    direction_ = 1;
+    index_          = 0;
+    direction_      = 1;
+    balls_layer_    = 0;
+    pinwheel_layer_ = 2;
+    led_enabled_    = true;
 }
 
 void IdleScreen::init_balls() {
@@ -77,44 +80,63 @@ void IdleScreen::update() {
     graphics_.set_pen(BG);
     graphics_.clear();
 
-    for (auto& b : balls_) {
-        b.x += b.dx;
-        b.y += b.dy;
-        if (b.x < 0)                    b.dx *= -1;
-        if (b.x >= graphics_.bounds.w)  b.dx *= -1;
-        if (b.y < 0)                    b.dy *= -1;
-        if (b.y >= graphics_.bounds.h)  b.dy *= -1;
-        graphics_.set_pen(b.pen);
-        graphics_.circle(Point(b.x, b.y), b.r);
+    // Draw in layer order: 0=back, 1=mid (shapes always here), 2=front
+    for (int pass = 0; pass < 3; pass++) {
+        if (pass == balls_layer_) {
+            for (auto& b : balls_) {
+                b.x += b.dx;
+                b.y += b.dy;
+                if (b.x < 0)                    b.dx *= -1;
+                if (b.x >= graphics_.bounds.w)  b.dx *= -1;
+                if (b.y < 0)                    b.dy *= -1;
+                if (b.y >= graphics_.bounds.h)  b.dy *= -1;
+                graphics_.set_pen(b.pen);
+                graphics_.circle(Point(b.x, b.y), b.r);
+            }
+        }
+        if (pass == 1) {
+            std::vector<Point> poly = {
+                Point(30, 30), Point(50, 35), Point(70, 25),
+                Point(80, 65), Point(50, 85), Point(30, 45),
+            };
+            graphics_.set_pen(YELLOW);
+            graphics_.polygon(poly);
+            graphics_.set_pen(TEAL);
+            graphics_.triangle(Point(50, 50), Point(130, 80), Point(80, 110));
+            graphics_.set_pen(WHITE);
+            graphics_.line(Point(50, 50), Point(120, 80));
+            graphics_.line(Point(20, 20), Point(120, 20));
+            graphics_.line(Point(20, 20), Point(20, 120));
+        }
+        if (pass == pinwheel_layer_) {
+            draw_pinwheel(index_);
+        }
     }
 
-    uint8_t r = 0, g = 0, b = 0;
-    from_hsv(float(millis()) / 5000.0f, 1.0f, 0.5f + sinf(float(millis()) / 100.0f / M_PI) * 0.5f, r, g, b);
-    led_.set_rgb(r, g, b);
-
-    std::vector<Point> poly = {
-        Point(30, 30), Point(50, 35), Point(70, 25),
-        Point(80, 65), Point(50, 85), Point(30, 45),
-    };
-    graphics_.set_pen(YELLOW);
-    graphics_.polygon(poly);
-
-    graphics_.set_pen(TEAL);
-    graphics_.triangle(Point(50, 50), Point(130, 80), Point(80, 110));
-
-    graphics_.set_pen(WHITE);
-    graphics_.line(Point(50, 50), Point(120, 80));
-    graphics_.line(Point(20, 20), Point(120, 20));
-    graphics_.line(Point(20, 20), Point(20, 120));
-
-    draw_pinwheel(index_);
     index_ += direction_;
+
+    if (led_enabled_) {
+        uint8_t r = 0, g = 0, b = 0;
+        from_hsv(float(millis()) / 5000.0f, 1.0f, 0.5f + sinf(float(millis()) / 100.0f / M_PI) * 0.5f, r, g, b);
+        led_.set_rgb(r, g, b);
+    }
 }
 
 void IdleScreen::on_button(ButtonId id, PressType type) {
     if (id == ButtonId::A && type == PressType::SHORT) {
-        on_enter(); // restart
+        on_enter();
+    } else if (id == ButtonId::B && type == PressType::SHORT) {
+        balls_layer_ = (balls_layer_ + 2) % 3; // layer ←
+    } else if (id == ButtonId::B && type == PressType::LONG) {
+        balls_layer_ = (balls_layer_ + 1) % 3; // layer →
     } else if (id == ButtonId::X && type == PressType::SHORT) {
         direction_ = -direction_;
+    } else if (id == ButtonId::X && type == PressType::LONG) {
+        led_enabled_ = !led_enabled_;
+        if (!led_enabled_) led_.set_rgb(0, 0, 0);
+    } else if (id == ButtonId::Y && type == PressType::SHORT) {
+        pinwheel_layer_ = (pinwheel_layer_ + 2) % 3; // layer ←
+    } else if (id == ButtonId::Y && type == PressType::LONG) {
+        pinwheel_layer_ = (pinwheel_layer_ + 1) % 3; // layer →
     }
 }

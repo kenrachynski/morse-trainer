@@ -26,8 +26,11 @@ private:
     void draw_pinwheel(uint32_t index);
 
     std::vector<Ball> balls_;
-    uint32_t index_ = 0;
-    int32_t direction_ = 1;
+    uint32_t index_         = 0;
+    int32_t  direction_     = 1;
+    int      balls_layer_   = 0; // 0=back, 1=mid, 2=front
+    int      pinwheel_layer_= 2;
+    bool     led_enabled_   = true;
 };
 
 } // namespace troublemaker

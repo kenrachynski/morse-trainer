@@ -32,6 +32,7 @@ MorseScreen::MorseScreen(PicoGraphics_PenRGB332& graphics, RGBLED& led,
 void MorseScreen::on_enter() {
     srand(static_cast<unsigned int>(time_us_64()));
     pick_char();
+    wrong_streak_  = 0;
     input_len_     = 0;
     input_[0]      = '\0';
     clue_visible_  = false;
@@ -75,6 +76,7 @@ void MorseScreen::update() {
                 result_us_ = now;
                 led_.set_rgb(0, 200, 0);
             } else {
+                wrong_streak_++;
                 state_     = State::WRONG;
                 result_us_ = now;
                 led_.set_rgb(200, 0, 0);
@@ -87,6 +89,7 @@ void MorseScreen::update() {
         uint32_t ms = static_cast<uint32_t>((now - result_us_) / 1000);
         if (ms >= RESULT_DISPLAY_MS) {
             pick_char();
+            wrong_streak_ = 0;
             input_len_    = 0;
             input_[0]     = '\0';
             clue_visible_ = false;
@@ -147,11 +150,13 @@ void MorseScreen::update() {
     } else if (state_ == State::WRONG) {
         graphics_.set_pen(RED);
         graphics_.text("wrong", Point(87, 90), 240, 2);
-        const char* code = code_for(target_);
-        int x = (240 - static_cast<int>(strlen(code)) * 12) / 2;
-        if (x < 5) x = 5;
-        graphics_.set_pen(GREEN);
-        graphics_.text(code, Point(x, 112), 240, 2);
+        if (wrong_streak_ >= settings_.wrong_clue_after) {
+            const char* code = code_for(target_);
+            int x = (240 - static_cast<int>(strlen(code)) * 12) / 2;
+            if (x < 5) x = 5;
+            graphics_.set_pen(GREEN);
+            graphics_.text(code, Point(x, 112), 240, 2);
+        }
     }
 }
 
@@ -202,6 +207,7 @@ void MorseScreen::on_button(ButtonId id, PressType type) {
     } else if (id == ButtonId::X && type == PressType::SHORT) {
         // Next trial
         pick_char();
+        wrong_streak_ = 0;
         input_len_    = 0;
         input_[0]     = '\0';
         clue_visible_ = false;

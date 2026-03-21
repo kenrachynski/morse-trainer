@@ -3,7 +3,7 @@
 #include "hardware/sync.h"
 #include <cstring>
 
-static constexpr uint32_t MAGIC           = 0xAB1E5E77;
+static constexpr uint32_t MAGIC           = 0xAB1E5E78;  // bump when Settings layout changes
 static constexpr uint32_t SETTINGS_OFFSET = PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE;
 
 struct FlashBlock {

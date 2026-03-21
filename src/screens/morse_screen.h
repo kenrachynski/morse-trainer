@@ -39,6 +39,7 @@ private:
 
     const Settings& settings_;
 
+    int      wrong_streak_ = 0;    // consecutive wrong attempts on current target
     char     target_       = 'A';
     char     input_[8]{};          // dots/dashes + null terminator
     int      input_len_    = 0;

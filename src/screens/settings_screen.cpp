@@ -30,7 +30,7 @@ void SettingsScreen::update() {
     graphics_.set_pen(YELLOW);
     graphics_.text("Settings", Point(5, 5), 230, 2);
 
-    const int ys[ITEM_COUNT] = {32, 57, 82};
+    const int ys[ITEM_COUNT] = {28, 50, 72, 94};
 
     // Row 0: Dit/Dah threshold
     {
@@ -58,6 +58,15 @@ void SettingsScreen::update() {
         graphics_.set_pen(sel_ == 2 ? YELLOW : GREY);
         if (sel_ == 2) graphics_.text(">", Point(5, ys[2]), 12, 2);
         graphics_.text(buf, Point(20, ys[2]), 230, 2);
+    }
+
+    // Row 3: Wrong clue threshold
+    {
+        char buf[24];
+        snprintf(buf, sizeof(buf), "Show ans: %d", settings_.wrong_clue_after);
+        graphics_.set_pen(sel_ == 3 ? YELLOW : GREY);
+        if (sel_ == 3) graphics_.text(">", Point(5, ys[3]), 12, 2);
+        graphics_.text(buf, Point(20, ys[3]), 230, 2);
     }
 
     // Hint
@@ -91,6 +100,9 @@ void SettingsScreen::on_button(ButtonId id, PressType type) {
                 if (settings_.brightness <= 250) settings_.brightness += 5;
                 else settings_.brightness = 255;
                 break;
+            case 3:
+                if (settings_.wrong_clue_after < 10) settings_.wrong_clue_after++;
+                break;
         }
         changed = true;
 
@@ -105,6 +117,9 @@ void SettingsScreen::on_button(ButtonId id, PressType type) {
             case 2:
                 if (settings_.brightness >= 5) settings_.brightness -= 5;
                 else settings_.brightness = 0;
+                break;
+            case 3:
+                if (settings_.wrong_clue_after > 1) settings_.wrong_clue_after--;
                 break;
         }
         changed = true;

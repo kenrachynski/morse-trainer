@@ -1,4 +1,5 @@
 #include "about_screen.h"
+#include "version_generated.h"
 #include <cstdio>
 
 using namespace troublemaker;

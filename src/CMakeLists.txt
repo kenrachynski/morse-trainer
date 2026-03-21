@@ -1,17 +1,3 @@
-# ── Build-time metadata ───────────────────────────────────────────────────────
-
-execute_process(
-    COMMAND git -C ${CMAKE_SOURCE_DIR} rev-parse --short HEAD
-    OUTPUT_VARIABLE GIT_SHA
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
-)
-if(NOT GIT_SHA)
-    set(GIT_SHA "unknown")
-endif()
-
-string(TIMESTAMP BUILD_DATE "%Y-%m-%d" UTC)
-
 # ── Sources ───────────────────────────────────────────────────────────────────
 
 add_executable(
@@ -45,11 +31,20 @@ include(libraries/pico_graphics/pico_graphics)
 # Pull in pico libraries that we need
 target_link_libraries(${NAME} pico_stdlib hardware_spi hardware_pwm hardware_pio hardware_dma hardware_gpio hardware_flash hardware_sync rgbled pico_display pico_graphics st7789)
 
-# Inject build-time metadata
+# Generate version header at build time (picks up current git SHA on every build)
+add_custom_target(gen_version ALL
+    COMMAND ${CMAKE_COMMAND}
+        -DOUTPUT=${CMAKE_CURRENT_BINARY_DIR}/version_generated.h
+        -DSRC_DIR=${CMAKE_SOURCE_DIR}
+        -P ${CMAKE_SOURCE_DIR}/cmake/gen_version.cmake
+    VERBATIM
+)
+add_dependencies(${NAME} gen_version)
+target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+# Static metadata (never changes between builds)
 target_compile_definitions(${NAME} PRIVATE
     APP_VERSION="v1.0"
-    APP_BUILD_DATE="${BUILD_DATE}"
-    APP_GIT_SHA="${GIT_SHA}"
     APP_AUTHOR="Ken Rachynski"
     APP_NAME="Morse Trainer"
 )

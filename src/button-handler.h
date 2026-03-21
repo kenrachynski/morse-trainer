@@ -11,7 +11,7 @@
 namespace troublemaker {
 
 enum class ButtonId { A, B, X, Y };
-enum class PressType { SHORT, LONG };
+enum class PressType { DOWN, SHORT, LONG };
 
 using ButtonCallback = std::function<void(ButtonId, PressType)>;
 

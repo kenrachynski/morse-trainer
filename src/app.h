@@ -8,6 +8,7 @@ namespace troublemaker {
 
 class MenuScreen;
 class IdleScreen;
+class MorseScreen;
 class StubScreen;
 
 class App {
@@ -28,7 +29,7 @@ private:
 
     MenuScreen* menu_;
     IdleScreen* idle_;
-    StubScreen* morse_;
+    MorseScreen* morse_;
     StubScreen* resistor_;
     StubScreen* help_;
     StubScreen* about_;

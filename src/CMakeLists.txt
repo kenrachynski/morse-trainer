@@ -7,6 +7,7 @@ add_executable(
   app.h app.cpp
   screens/idle_screen.h screens/idle_screen.cpp
   screens/menu_screen.h screens/menu_screen.cpp
+  screens/morse_screen.h screens/morse_screen.cpp
   screens/stub_screen.h screens/stub_screen.cpp
 )
 

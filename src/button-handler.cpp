@@ -38,6 +38,7 @@ void ButtonHandler::poll() {
             pressed_[i]        = true;
             press_start_us_[i] = now;
             long_fired_[i]     = false;
+            callback_(ButtonId(i), PressType::DOWN);
 
         } else if (!current && pressed_[i]) {
             // Button just released

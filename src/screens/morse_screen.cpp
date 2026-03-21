@@ -33,6 +33,10 @@ void MorseScreen::on_enter() {
     srand(static_cast<unsigned int>(time_us_64()));
     pick_char();
     wrong_streak_  = 0;
+    flash_idx_     = 0;
+    flash_on_      = false;
+    flash_done_    = false;
+    flash_us_      = 0;
     input_len_     = 0;
     input_[0]      = '\0';
     clue_visible_  = false;
@@ -72,8 +76,11 @@ void MorseScreen::update() {
         uint32_t ms = static_cast<uint32_t>((now - last_input_us_) / 1000);
         if (ms >= DECODE_TIMEOUT_MS) {
             if (decode() == target_) {
-                state_     = State::CORRECT;
-                result_us_ = now;
+                state_      = State::CORRECT;
+                flash_idx_  = 0;
+                flash_on_   = true;
+                flash_done_ = false;
+                flash_us_   = now;
                 led_.set_rgb(0, 200, 0);
             } else {
                 wrong_streak_++;
@@ -84,12 +91,43 @@ void MorseScreen::update() {
         }
     }
 
-    // Auto-advance after correct
-    if (state_ == State::CORRECT) {
+    // Drive correct-answer LED flash animation
+    if (state_ == State::CORRECT && !flash_done_) {
+        const char* code    = code_for(target_);
+        int         codelen = static_cast<int>(strlen(code));
+        uint32_t    elapsed = static_cast<uint32_t>((now - flash_us_) / 1000);
+
+        if (flash_idx_ < codelen) {
+            uint32_t on_dur = (code[flash_idx_] == '.') ? FLASH_DIT_MS : FLASH_DAH_MS;
+            if (flash_on_) {
+                if (elapsed >= on_dur) {
+                    led_.set_rgb(0, 0, 0);
+                    flash_on_ = false;
+                    flash_us_ = now;
+                }
+            } else {
+                if (elapsed >= FLASH_GAP_MS) {
+                    flash_idx_++;
+                    if (flash_idx_ < codelen) {
+                        led_.set_rgb(0, 200, 0);
+                        flash_on_ = true;
+                        flash_us_ = now;
+                    } else {
+                        flash_done_ = true;
+                        result_us_  = now;
+                    }
+                }
+            }
+        }
+    }
+
+    // Auto-advance after correct (once flash is done)
+    if (state_ == State::CORRECT && flash_done_) {
         uint32_t ms = static_cast<uint32_t>((now - result_us_) / 1000);
         if (ms >= RESULT_DISPLAY_MS) {
             pick_char();
             wrong_streak_ = 0;
+            flash_done_   = false;
             input_len_    = 0;
             input_[0]     = '\0';
             clue_visible_ = false;

@@ -54,6 +54,8 @@ target_compile_definitions(${NAME} PRIVATE
     APP_NAME="Morse Trainer"
 )
 
+target_compile_options(${NAME} PRIVATE -Wall -Werror)
+
 # Enable USB serial so picotool can reboot the device without BOOTSEL
 pico_enable_stdio_usb(${NAME} 1)
 pico_enable_stdio_uart(${NAME} 0)

@@ -104,7 +104,7 @@ void HelpScreen::draw_nav() {
     graphics_.text(page.title, Point(5, 3), 240, 2);
 
     // Page indicator
-    char ind[8];
+    char ind[32];
     snprintf(ind, sizeof(ind), "%d/%d", nav_page_ + 1, 4);
     graphics_.set_pen(GREY);
     graphics_.text(ind, Point(200, 3), 240, 1);

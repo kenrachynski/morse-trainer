@@ -21,7 +21,6 @@ void SettingsScreen::on_enter() {
 void SettingsScreen::update() {
     Pen BG     = graphics_.create_pen(  0,   0,   0);
     Pen YELLOW = graphics_.create_pen(255, 255,   0);
-    Pen WHITE  = graphics_.create_pen(255, 255, 255);
     Pen GREY   = graphics_.create_pen(180, 180, 180);
 
     graphics_.set_pen(BG);

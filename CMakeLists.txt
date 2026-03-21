@@ -19,4 +19,3 @@ include_directories(
 
 add_subdirectory(src)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")

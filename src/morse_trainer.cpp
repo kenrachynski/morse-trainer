@@ -23,6 +23,7 @@ int main() {
     });
 
     while (true) {
+        buttons.poll();
         app.update();
         st7789.update(&graphics);
         sleep_ms(1000 / 60);

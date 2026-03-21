@@ -27,7 +27,7 @@ private:
 
     std::vector<Ball> balls_;
     uint32_t index_ = 0;
-    volatile int32_t direction_ = 1;
+    int32_t direction_ = 1;
 };
 
 } // namespace troublemaker

@@ -17,21 +17,19 @@ using ButtonCallback = std::function<void(ButtonId, PressType)>;
 
 class ButtonHandler {
 public:
-    static constexpr uint32_t SHORT_PRESS_MS = 60;
-    static constexpr uint32_t LONG_PRESS_MS = 180;
+    // Minimum hold time to register a press (debounce floor)
+    static constexpr uint32_t SHORT_PRESS_MS = 20;
+    // Hold time to fire a long press (fires while held, no release needed)
+    static constexpr uint32_t LONG_PRESS_MS = 500;
 
     void init(ButtonCallback callback);
+    void poll(); // call once per main loop frame
 
 private:
-    static void gpio_irq_handler(unsigned int gpio, uint32_t events);
-    void on_event(unsigned int gpio, uint32_t events);
-    int gpio_to_index(unsigned int gpio) const;
-
     ButtonCallback callback_;
     uint64_t press_start_us_[4]{};
     bool pressed_[4]{};
-
-    static ButtonHandler* instance_;
+    bool long_fired_[4]{};
 };
 
 } // namespace troublemaker

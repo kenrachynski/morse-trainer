@@ -17,7 +17,7 @@ private:
     static const char* const ITEMS[ITEM_COUNT];
     static const ScreenId SCREEN_IDS[ITEM_COUNT];
 
-    volatile int selected_ = 0;
+    int selected_ = 0;
 };
 
 } // namespace troublemaker

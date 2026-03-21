@@ -14,6 +14,7 @@ enum class ScreenId {
     RESISTOR_CALCULATOR,
     HELP,
     ABOUT,
+    SETTINGS,
 };
 
 using SwitchFn = std::function<void(ScreenId)>;

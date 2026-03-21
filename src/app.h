@@ -1,6 +1,7 @@
 #pragma once
 
 #include "screen.h"
+#include "settings.h"
 #include "button-handler.h"
 #include "drivers/st7789/st7789.hpp"
 
@@ -12,6 +13,7 @@ class MorseScreen;
 class ResistorScreen;
 class HelpScreen;
 class AboutScreen;
+class SettingsScreen;
 class StubScreen;
 
 class App {
@@ -30,12 +32,15 @@ private:
     pimoroni::PicoGraphics_PenRGB332& graphics_;
     pimoroni::RGBLED& led_;
 
-    MenuScreen* menu_;
-    IdleScreen* idle_;
-    MorseScreen* morse_;
+    Settings        settings_;
+
+    MenuScreen*     menu_;
+    IdleScreen*     idle_;
+    MorseScreen*    morse_;
     ResistorScreen* resistor_;
-    HelpScreen* help_;
-    AboutScreen* about_;
+    HelpScreen*     help_;
+    AboutScreen*    about_;
+    SettingsScreen* settings_screen_;
 
     Screen* active_ = nullptr;
 };

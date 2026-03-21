@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../screen.h"
+#include "../settings.h"
 #include <cstdint>
 
 namespace troublemaker {
@@ -8,15 +9,12 @@ namespace troublemaker {
 class MorseScreen : public Screen {
 public:
     MorseScreen(pimoroni::PicoGraphics_PenRGB332& graphics,
-                pimoroni::RGBLED& led, SwitchFn switch_to);
+                pimoroni::RGBLED& led, SwitchFn switch_to,
+                const Settings& settings);
 
     void on_enter() override;
     void update() override;
     void on_button(ButtonId id, PressType type) override;
-
-    // Threshold between dit and dah: presses shorter than this = dit, longer = dah.
-    // PressType::LONG (500ms) is always treated as dah regardless.
-    static constexpr uint32_t DIT_DAH_THRESHOLD_MS = 250;
 
     // Time after last input before auto-decoding the sequence
     static constexpr uint32_t DECODE_TIMEOUT_MS = 1500;
@@ -31,13 +29,15 @@ private:
     };
 
     static const MorseEntry TABLE[];
-    static constexpr int TABLE_LEN = 26; // A–Z only
+    static constexpr int TABLE_LEN = 36; // A–Z + 0–9
 
     enum class State { WAITING, INPUTTING, CORRECT, WRONG };
 
     void        pick_char();
     const char* code_for(char ch) const;
     char        decode() const;
+
+    const Settings& settings_;
 
     char     target_       = 'A';
     char     input_[8]{};          // dots/dashes + null terminator

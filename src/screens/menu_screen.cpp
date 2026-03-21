@@ -9,6 +9,7 @@ const char* const MenuScreen::ITEMS[ITEM_COUNT] = {
     "Idle",
     "Help",
     "About",
+    "Settings",
 };
 
 const ScreenId MenuScreen::SCREEN_IDS[ITEM_COUNT] = {
@@ -17,6 +18,7 @@ const ScreenId MenuScreen::SCREEN_IDS[ITEM_COUNT] = {
     ScreenId::IDLE,
     ScreenId::HELP,
     ScreenId::ABOUT,
+    ScreenId::SETTINGS,
 };
 
 MenuScreen::MenuScreen(PicoGraphics_PenRGB332& graphics, RGBLED& led, SwitchFn switch_to)

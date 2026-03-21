@@ -7,6 +7,7 @@ using namespace troublemaker;
 using namespace pimoroni;
 
 const MorseScreen::MorseEntry MorseScreen::TABLE[TABLE_LEN] = {
+    // A–Z
     {'A', ".-"},   {'B', "-..."},  {'C', "-.-."},
     {'D', "-.."},  {'E', "."},     {'F', "..-."},
     {'G', "--."},  {'H', "...."},  {'I', ".."},
@@ -16,10 +17,17 @@ const MorseScreen::MorseEntry MorseScreen::TABLE[TABLE_LEN] = {
     {'S', "..."},  {'T', "-"},     {'U', "..-"},
     {'V', "...-"}, {'W', ".--"},   {'X', "-..-"},
     {'Y', "-.--"}, {'Z', "--.."},
+    // 0–9
+    {'0', "-----"}, {'1', ".----"}, {'2', "..---"},
+    {'3', "...--"}, {'4', "....-"}, {'5', "....."},
+    {'6', "-...."}, {'7', "--..."}, {'8', "---.."},
+    {'9', "----."},
 };
 
-MorseScreen::MorseScreen(PicoGraphics_PenRGB332& graphics, RGBLED& led, SwitchFn switch_to)
-    : Screen(graphics, led, std::move(switch_to)) {}
+MorseScreen::MorseScreen(PicoGraphics_PenRGB332& graphics, RGBLED& led,
+                         SwitchFn switch_to, const Settings& settings)
+    : Screen(graphics, led, std::move(switch_to))
+    , settings_(settings) {}
 
 void MorseScreen::on_enter() {
     srand(static_cast<unsigned int>(time_us_64()));
@@ -35,8 +43,9 @@ void MorseScreen::on_enter() {
 }
 
 void MorseScreen::pick_char() {
+    int pool = (settings_.practice_set == 0) ? 26 : TABLE_LEN;
     char next;
-    do { next = 'A' + (rand() % 26); } while (next == target_);
+    do { next = TABLE[rand() % pool].ch; } while (next == target_);
     target_ = next;
 }
 
@@ -172,7 +181,7 @@ void MorseScreen::on_button(ButtonId id, PressType type) {
             symbol = '-'; // held past 500ms, always dah
         } else {
             uint32_t ms = static_cast<uint32_t>((now - y_down_us_) / 1000);
-            symbol = (ms >= DIT_DAH_THRESHOLD_MS) ? '-' : '.';
+            symbol = (ms >= settings_.dit_dah_ms) ? '-' : '.';
         }
 
         input_[input_len_++] = symbol;

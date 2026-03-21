@@ -1,10 +1,12 @@
 #include "app.h"
+#include "settings_store.h"
 #include "screens/menu_screen.h"
 #include "screens/idle_screen.h"
 #include "screens/morse_screen.h"
 #include "screens/resistor_screen.h"
 #include "screens/help_screen.h"
 #include "screens/about_screen.h"
+#include "screens/settings_screen.h"
 #include "screens/stub_screen.h"
 
 using namespace troublemaker;
@@ -13,14 +15,22 @@ using namespace pimoroni;
 App::App(ST7789& display, PicoGraphics_PenRGB332& graphics, RGBLED& led)
     : display_(display), graphics_(graphics), led_(led) {
 
+    SettingsStore::load(settings_);
+    display_.set_backlight(settings_.brightness);
+
     auto sw = [this](ScreenId id) { set_screen(id); };
 
     menu_     = new MenuScreen(graphics, led, sw);
     idle_     = new IdleScreen(graphics, led, sw);
-    morse_    = new MorseScreen(graphics, led, sw);
+    morse_    = new MorseScreen(graphics, led, sw, settings_);
     resistor_ = new ResistorScreen(graphics, led, sw);
     help_     = new HelpScreen(graphics, led, sw);
     about_    = new AboutScreen(graphics, led, sw);
+    settings_screen_ = new SettingsScreen(
+        graphics, led, sw, settings_,
+        [this]() { display_.set_backlight(settings_.brightness); },
+        [this]() { SettingsStore::save(settings_); }
+    );
 
     set_screen(ScreenId::MENU);
 }
@@ -32,6 +42,7 @@ App::~App() {
     delete resistor_;
     delete help_;
     delete about_;
+    delete settings_screen_;
 }
 
 void App::on_button(ButtonId id, PressType type) {
@@ -60,6 +71,7 @@ Screen* App::screen_for(ScreenId id) {
         case ScreenId::RESISTOR_CALCULATOR: return resistor_;
         case ScreenId::HELP:                return help_;
         case ScreenId::ABOUT:               return about_;
+        case ScreenId::SETTINGS:            return settings_screen_;
         default:                            return nullptr;
     }
 }

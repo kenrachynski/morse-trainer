@@ -20,6 +20,8 @@ add_executable(
   image_data.cpp
   button-handler.h button-handler.cpp
   screen.h
+  settings.h
+  settings_store.h settings_store.cpp
   app.h app.cpp
   screens/idle_screen.h screens/idle_screen.cpp
   screens/menu_screen.h screens/menu_screen.cpp
@@ -27,6 +29,7 @@ add_executable(
   screens/resistor_screen.h screens/resistor_screen.cpp
   screens/help_screen.h screens/help_screen.cpp
   screens/about_screen.h screens/about_screen.cpp
+  screens/settings_screen.h screens/settings_screen.cpp
   screens/stub_screen.h screens/stub_screen.cpp
 )
 
@@ -40,7 +43,7 @@ include(libraries/pico_graphics/pico_graphics)
 
 
 # Pull in pico libraries that we need
-target_link_libraries(${NAME} pico_stdlib hardware_spi hardware_pwm hardware_pio hardware_dma hardware_gpio rgbled pico_display pico_graphics st7789)
+target_link_libraries(${NAME} pico_stdlib hardware_spi hardware_pwm hardware_pio hardware_dma hardware_gpio hardware_flash hardware_sync rgbled pico_display pico_graphics st7789)
 
 # Inject build-time metadata
 target_compile_definitions(${NAME} PRIVATE

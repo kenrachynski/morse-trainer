@@ -3,6 +3,7 @@
 #include "screens/idle_screen.h"
 #include "screens/morse_screen.h"
 #include "screens/resistor_screen.h"
+#include "screens/help_screen.h"
 #include "screens/stub_screen.h"
 
 using namespace troublemaker;
@@ -17,7 +18,7 @@ App::App(ST7789& display, PicoGraphics_PenRGB332& graphics, RGBLED& led)
     idle_     = new IdleScreen(graphics, led, sw);
     morse_    = new MorseScreen(graphics, led, sw);
     resistor_ = new ResistorScreen(graphics, led, sw);
-    help_     = new StubScreen(graphics, led, sw, "Help");
+    help_     = new HelpScreen(graphics, led, sw);
     about_    = new StubScreen(graphics, led, sw, "About");
 
     set_screen(ScreenId::MENU);

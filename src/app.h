@@ -10,6 +10,7 @@ class MenuScreen;
 class IdleScreen;
 class MorseScreen;
 class ResistorScreen;
+class HelpScreen;
 class StubScreen;
 
 class App {
@@ -32,7 +33,7 @@ private:
     IdleScreen* idle_;
     MorseScreen* morse_;
     ResistorScreen* resistor_;
-    StubScreen* help_;
+    HelpScreen* help_;
     StubScreen* about_;
 
     Screen* active_ = nullptr;

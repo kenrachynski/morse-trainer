@@ -9,6 +9,7 @@ add_executable(
   screens/menu_screen.h screens/menu_screen.cpp
   screens/morse_screen.h screens/morse_screen.cpp
   screens/resistor_screen.h screens/resistor_screen.cpp
+  screens/help_screen.h screens/help_screen.cpp
   screens/stub_screen.h screens/stub_screen.cpp
 )
 

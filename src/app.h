@@ -11,6 +11,7 @@ class IdleScreen;
 class MorseScreen;
 class ResistorScreen;
 class HelpScreen;
+class AboutScreen;
 class StubScreen;
 
 class App {
@@ -34,7 +35,7 @@ private:
     MorseScreen* morse_;
     ResistorScreen* resistor_;
     HelpScreen* help_;
-    StubScreen* about_;
+    AboutScreen* about_;
 
     Screen* active_ = nullptr;
 };

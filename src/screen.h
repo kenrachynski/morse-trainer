@@ -15,6 +15,7 @@ enum class ScreenId {
     HELP,
     ABOUT,
     SETTINGS,
+    RESUME,   // return to the screen active before idle screensaver
 };
 
 using SwitchFn = std::function<void(ScreenId)>;

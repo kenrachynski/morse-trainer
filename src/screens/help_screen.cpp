@@ -37,7 +37,7 @@ const HelpScreen::NavEntry HelpScreen::NAV_RESISTOR[] = {
 
 const HelpScreen::NavEntry HelpScreen::NAV_IDLE[] = {
     {"A-S:", "Restart"},
-    {"B-S:", "Back to menu"},
+    {"B-S:", "Resume / menu"},
     {"X-L:", "LED toggle"},
     {"A-L:", "Reset App"},
 };

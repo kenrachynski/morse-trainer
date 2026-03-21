@@ -97,7 +97,7 @@ void IdleScreen::on_button(ButtonId id, PressType type) {
     if (id == ButtonId::A && type == PressType::SHORT) {
         on_enter();
     } else if (id == ButtonId::B && type == PressType::SHORT) {
-        switch_to_(ScreenId::MENU);
+        switch_to_(ScreenId::RESUME);
     } else if (id == ButtonId::X && type == PressType::LONG) {
         led_enabled_ = !led_enabled_;
         if (!led_enabled_) led_.set_rgb(0, 0, 0);

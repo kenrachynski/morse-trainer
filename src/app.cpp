@@ -63,6 +63,7 @@ void App::update() {
     if (settings_.idle_timeout_s > 0 && active_ != idle_) {
         uint64_t elapsed_s = (time_us_64() - last_activity_us_) / 1000000ULL;
         if (elapsed_s >= settings_.idle_timeout_s) {
+            pre_idle_ = active_;
             set_screen(ScreenId::IDLE);
         }
     }
@@ -71,6 +72,17 @@ void App::update() {
 }
 
 void App::set_screen(ScreenId id) {
+    if (id == ScreenId::RESUME) {
+        if (pre_idle_) {
+            active_ = pre_idle_;   // restore without on_enter — preserve state
+            pre_idle_ = nullptr;
+        } else {
+            active_ = menu_;
+            active_->on_enter();
+        }
+        return;
+    }
+    if (id != ScreenId::IDLE) pre_idle_ = nullptr;
     active_ = screen_for(id);
     if (active_) active_->on_enter();
 }

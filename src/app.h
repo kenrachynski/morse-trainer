@@ -34,6 +34,7 @@ private:
 
     Settings        settings_;
     uint64_t        last_activity_us_ = 0;
+    Screen*         pre_idle_         = nullptr;
 
     MenuScreen*     menu_;
     IdleScreen*     idle_;

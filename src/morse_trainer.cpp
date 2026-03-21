@@ -13,6 +13,7 @@ PicoGraphics_PenRGB332 graphics(st7789.width, st7789.height, nullptr);
 RGBLED led(PicoDisplay::LED_R, PicoDisplay::LED_G, PicoDisplay::LED_B);
 
 int main() {
+    stdio_init_all();
     st7789.set_backlight(100);
 
     App app(st7789, graphics, led);

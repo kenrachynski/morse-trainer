@@ -22,5 +22,9 @@ include(libraries/pico_graphics/pico_graphics)
 # Pull in pico libraries that we need
 target_link_libraries(${NAME} pico_stdlib hardware_spi hardware_pwm hardware_pio hardware_dma hardware_gpio rgbled pico_display pico_graphics st7789)
 
+# Enable USB serial so picotool can reboot the device without BOOTSEL
+pico_enable_stdio_usb(${NAME} 1)
+pico_enable_stdio_uart(${NAME} 0)
+
 # create map/bin/hex file etc.
 pico_add_extra_outputs(${NAME})

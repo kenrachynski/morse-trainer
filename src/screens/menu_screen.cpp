@@ -24,19 +24,26 @@ MenuScreen::MenuScreen(PicoGraphics_PenRGB332& graphics, RGBLED& led, SwitchFn s
 
 void MenuScreen::on_enter() {
     selected_ = 0;
+    led_.set_rgb(0, 0, 0);
 }
 
 void MenuScreen::update() {
     graphics_.set_pen(graphics_.create_pen(0, 0, 0));
     graphics_.clear();
 
+    Pen SELECTED = graphics_.create_pen(255, 255, 0);
+    Pen NORMAL   = graphics_.create_pen(200, 200, 200);
+
     for (int i = 0; i < ITEM_COUNT; i++) {
+        int y = 15 + i * 22;
         if (i == selected_) {
-            graphics_.set_pen(graphics_.create_pen(255, 255, 0));
+            graphics_.set_pen(SELECTED);
+            graphics_.text(">", Point(8, y), 10);
+            graphics_.text(ITEMS[i], Point(20, y), 200);
         } else {
-            graphics_.set_pen(graphics_.create_pen(200, 200, 200));
+            graphics_.set_pen(NORMAL);
+            graphics_.text(ITEMS[i], Point(20, y), 200);
         }
-        graphics_.text(ITEMS[i], Point(20, 15 + i * 22), 200);
     }
 }
 

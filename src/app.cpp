@@ -1,5 +1,6 @@
 #include "app.h"
 #include "settings_store.h"
+#include "pico/time.h"
 #include "screens/menu_screen.h"
 #include "screens/idle_screen.h"
 #include "screens/morse_screen.h"
@@ -32,6 +33,7 @@ App::App(ST7789& display, PicoGraphics_PenRGB332& graphics, RGBLED& led)
         [this]() { SettingsStore::save(settings_); }
     );
 
+    last_activity_us_ = time_us_64();
     set_screen(ScreenId::MENU);
 }
 
@@ -46,6 +48,8 @@ App::~App() {
 }
 
 void App::on_button(ButtonId id, PressType type) {
+    last_activity_us_ = time_us_64();
+
     // A-Long resets to menu from any screen
     if (id == ButtonId::A && type == PressType::LONG) {
         set_screen(ScreenId::MENU);
@@ -55,6 +59,14 @@ void App::on_button(ButtonId id, PressType type) {
 }
 
 void App::update() {
+    // Auto-idle timer
+    if (settings_.idle_timeout_s > 0 && active_ != idle_) {
+        uint64_t elapsed_s = (time_us_64() - last_activity_us_) / 1000000ULL;
+        if (elapsed_s >= settings_.idle_timeout_s) {
+            set_screen(ScreenId::IDLE);
+        }
+    }
+
     if (active_) active_->update();
 }
 

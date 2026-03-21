@@ -30,7 +30,7 @@ void SettingsScreen::update() {
     graphics_.set_pen(YELLOW);
     graphics_.text("Settings", Point(5, 5), 230, 2);
 
-    const int ys[ITEM_COUNT] = {28, 50, 72, 94};
+    const int ys[ITEM_COUNT] = {26, 46, 66, 86, 106};
 
     // Row 0: Dit/Dah threshold
     {
@@ -69,9 +69,17 @@ void SettingsScreen::update() {
         graphics_.text(buf, Point(20, ys[3]), 230, 2);
     }
 
-    // Hint
-    graphics_.set_pen(GREY);
-    graphics_.text("A+: up  B-: dn  B-L: save", Point(5, 118), 230, 1);
+    // Row 4: Idle timeout
+    {
+        char buf[24];
+        if (settings_.idle_timeout_s == 0)
+            snprintf(buf, sizeof(buf), "Idle: Off");
+        else
+            snprintf(buf, sizeof(buf), "Idle: %ds", settings_.idle_timeout_s);
+        graphics_.set_pen(sel_ == 4 ? YELLOW : GREY);
+        if (sel_ == 4) graphics_.text(">", Point(5, ys[4]), 12, 2);
+        graphics_.text(buf, Point(20, ys[4]), 230, 2);
+    }
 }
 
 void SettingsScreen::on_button(ButtonId id, PressType type) {
@@ -103,6 +111,10 @@ void SettingsScreen::on_button(ButtonId id, PressType type) {
             case 3:
                 if (settings_.wrong_clue_after < 10) settings_.wrong_clue_after++;
                 break;
+            case 4:
+                settings_.idle_timeout_s = (settings_.idle_timeout_s >= 300)
+                    ? 0 : settings_.idle_timeout_s + 10;
+                break;
         }
         changed = true;
 
@@ -120,6 +132,10 @@ void SettingsScreen::on_button(ButtonId id, PressType type) {
                 break;
             case 3:
                 if (settings_.wrong_clue_after > 1) settings_.wrong_clue_after--;
+                break;
+            case 4:
+                settings_.idle_timeout_s = (settings_.idle_timeout_s == 0)
+                    ? 300 : settings_.idle_timeout_s - 10;
                 break;
         }
         changed = true;

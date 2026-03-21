@@ -33,6 +33,7 @@ private:
     pimoroni::RGBLED& led_;
 
     Settings        settings_;
+    uint64_t        last_activity_us_ = 0;
 
     MenuScreen*     menu_;
     IdleScreen*     idle_;

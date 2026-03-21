@@ -6,7 +6,6 @@ using namespace pimoroni;
 const char* const MenuScreen::ITEMS[ITEM_COUNT] = {
     "Morse Trainer",
     "Resistor Calc",
-    "Idle",
     "Help",
     "About",
     "Settings",
@@ -15,7 +14,6 @@ const char* const MenuScreen::ITEMS[ITEM_COUNT] = {
 const ScreenId MenuScreen::SCREEN_IDS[ITEM_COUNT] = {
     ScreenId::MORSE_TRAINER,
     ScreenId::RESISTOR_CALCULATOR,
-    ScreenId::IDLE,
     ScreenId::HELP,
     ScreenId::ABOUT,
     ScreenId::SETTINGS,

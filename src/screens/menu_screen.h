@@ -13,7 +13,7 @@ public:
     void on_button(ButtonId id, PressType type) override;
 
 private:
-    static constexpr int ITEM_COUNT = 6;
+    static constexpr int ITEM_COUNT = 5;
     static const char* const ITEMS[ITEM_COUNT];
     static const ScreenId SCREEN_IDS[ITEM_COUNT];
 

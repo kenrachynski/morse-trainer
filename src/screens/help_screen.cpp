@@ -37,12 +37,8 @@ const HelpScreen::NavEntry HelpScreen::NAV_RESISTOR[] = {
 
 const HelpScreen::NavEntry HelpScreen::NAV_IDLE[] = {
     {"A-S:", "Restart"},
-    {"B-S:", "Balls layer <"},
-    {"B-L:", "Balls layer >"},
-    {"X-S:", "Pinwheel dir"},
+    {"B-S:", "Back to menu"},
     {"X-L:", "LED toggle"},
-    {"Y-S:", "Pinwheel <"},
-    {"Y-L:", "Pinwheel >"},
     {"A-L:", "Reset App"},
 };
 
@@ -50,7 +46,7 @@ const HelpScreen::NavPage HelpScreen::NAV_PAGES[4] = {
     {"Menu",          NAV_MENU,     4},
     {"Morse Trainer", NAV_MORSE,    7},
     {"Resistor Calc", NAV_RESISTOR, 8},
-    {"Idle",          NAV_IDLE,     8},
+    {"Idle",          NAV_IDLE,     4},
 };
 
 const char* const HelpScreen::MORSE_CODES[26] = {

@@ -20,7 +20,7 @@ public:
     void on_button(ButtonId id, PressType type) override;
 
 private:
-    static constexpr int ITEM_COUNT = 4;
+    static constexpr int ITEM_COUNT = 5;
 
     Settings&             settings_;
     std::function<void()> on_change_;

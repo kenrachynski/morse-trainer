@@ -2,7 +2,13 @@ add_executable(
   ${NAME}
   morse_trainer.cpp
   image_data.cpp
-        button-handler.h button-handler.cpp)
+  button-handler.h button-handler.cpp
+  screen.h
+  app.h app.cpp
+  screens/idle_screen.h screens/idle_screen.cpp
+  screens/menu_screen.h screens/menu_screen.cpp
+  screens/stub_screen.h screens/stub_screen.cpp
+)
 
 include(common/pimoroni_bus)
 include(drivers/st7789/st7789)

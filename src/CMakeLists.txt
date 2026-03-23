@@ -15,7 +15,6 @@ add_executable(
   screens/help_screen.h screens/help_screen.cpp
   screens/about_screen.h screens/about_screen.cpp
   screens/settings_screen.h screens/settings_screen.cpp
-  screens/stub_screen.h screens/stub_screen.cpp
 )
 
 include(common/pimoroni_bus)

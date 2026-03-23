@@ -8,7 +8,6 @@
 #include "screens/help_screen.h"
 #include "screens/about_screen.h"
 #include "screens/settings_screen.h"
-#include "screens/stub_screen.h"
 
 using namespace troublemaker;
 using namespace pimoroni;

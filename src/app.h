@@ -14,7 +14,6 @@ class ResistorScreen;
 class HelpScreen;
 class AboutScreen;
 class SettingsScreen;
-class StubScreen;
 
 class App {
 public:

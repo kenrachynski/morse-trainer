@@ -3,7 +3,6 @@
 add_executable(
   ${NAME}
   morse_trainer.cpp
-  image_data.cpp
   button-handler.h button-handler.cpp
   screen.h
   settings.h

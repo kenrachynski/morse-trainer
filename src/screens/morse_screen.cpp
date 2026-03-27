@@ -1,0 +1,263 @@
+#include "morse_screen.h"
+#include "pico/time.h"
+#include <cstdlib>
+#include <cstring>
+
+using namespace troublemaker;
+using namespace pimoroni;
+
+const MorseScreen::MorseEntry MorseScreen::TABLE[TABLE_LEN] = {
+    // A–Z
+    {'A', ".-"},   {'B', "-..."},  {'C', "-.-."},
+    {'D', "-.."},  {'E', "."},     {'F', "..-."},
+    {'G', "--."},  {'H', "...."},  {'I', ".."},
+    {'J', ".---"}, {'K', "-.-"},   {'L', ".-.."},
+    {'M', "--"},   {'N', "-."},    {'O', "---"},
+    {'P', ".--."}, {'Q', "--.-"},  {'R', ".-."},
+    {'S', "..."},  {'T', "-"},     {'U', "..-"},
+    {'V', "...-"}, {'W', ".--"},   {'X', "-..-"},
+    {'Y', "-.--"}, {'Z', "--.."},
+    // 0–9
+    {'0', "-----"}, {'1', ".----"}, {'2', "..---"},
+    {'3', "...--"}, {'4', "....-"}, {'5', "....."},
+    {'6', "-...."}, {'7', "--..."}, {'8', "---.."},
+    {'9', "----."},
+};
+
+MorseScreen::MorseScreen(PicoGraphics_PenRGB332& graphics, RGBLED& led,
+                         SwitchFn switch_to, const Settings& settings)
+    : Screen(graphics, led, std::move(switch_to))
+    , settings_(settings) {}
+
+void MorseScreen::on_enter() {
+    srand(static_cast<unsigned int>(time_us_64()));
+    pick_char();
+    wrong_streak_  = 0;
+    flash_idx_     = 0;
+    flash_on_      = false;
+    flash_done_    = false;
+    flash_us_      = 0;
+    input_len_     = 0;
+    input_[0]      = '\0';
+    clue_visible_  = false;
+    input_visible_ = true;
+    state_         = State::WAITING;
+    y_down_us_     = 0;
+    last_input_us_ = 0;
+    result_us_     = 0;
+    led_.set_rgb(0, 0, 0);
+}
+
+void MorseScreen::pick_char() {
+    int pool = (settings_.practice_set == 0) ? 26 : TABLE_LEN;
+    char next;
+    do { next = TABLE[rand() % pool].ch; } while (next == target_);
+    target_ = next;
+}
+
+const char* MorseScreen::code_for(char ch) const {
+    for (int i = 0; i < TABLE_LEN; i++) {
+        if (TABLE[i].ch == ch) return TABLE[i].code;
+    }
+    return "";
+}
+
+char MorseScreen::decode() const {
+    for (int i = 0; i < TABLE_LEN; i++) {
+        if (strcmp(TABLE[i].code, input_) == 0) return TABLE[i].ch;
+    }
+    return '?';
+}
+
+void MorseScreen::update() {
+    uint64_t now = time_us_64();
+
+    // Auto-decode after silence
+    if (state_ == State::INPUTTING && input_len_ > 0) {
+        uint32_t ms = static_cast<uint32_t>((now - last_input_us_) / 1000);
+        if (ms >= DECODE_TIMEOUT_MS) {
+            if (decode() == target_) {
+                state_      = State::CORRECT;
+                flash_idx_  = 0;
+                flash_on_   = true;
+                flash_done_ = false;
+                flash_us_   = now;
+                led_.set_rgb(0, 200, 0);
+            } else {
+                wrong_streak_++;
+                state_     = State::WRONG;
+                result_us_ = now;
+                led_.set_rgb(200, 0, 0);
+            }
+        }
+    }
+
+    // Drive correct-answer LED flash animation
+    if (state_ == State::CORRECT && !flash_done_) {
+        const char* code    = code_for(target_);
+        int         codelen = static_cast<int>(strlen(code));
+        uint32_t    elapsed = static_cast<uint32_t>((now - flash_us_) / 1000);
+
+        if (flash_idx_ < codelen) {
+            uint32_t on_dur = (code[flash_idx_] == '.') ? FLASH_DIT_MS : FLASH_DAH_MS;
+            if (flash_on_) {
+                if (elapsed >= on_dur) {
+                    led_.set_rgb(0, 0, 0);
+                    flash_on_ = false;
+                    flash_us_ = now;
+                }
+            } else {
+                if (elapsed >= FLASH_GAP_MS) {
+                    flash_idx_++;
+                    if (flash_idx_ < codelen) {
+                        led_.set_rgb(0, 200, 0);
+                        flash_on_ = true;
+                        flash_us_ = now;
+                    } else {
+                        flash_done_ = true;
+                        result_us_  = now;
+                    }
+                }
+            }
+        }
+    }
+
+    // Auto-advance after correct (once flash is done)
+    if (state_ == State::CORRECT && flash_done_) {
+        uint32_t ms = static_cast<uint32_t>((now - result_us_) / 1000);
+        if (ms >= RESULT_DISPLAY_MS) {
+            pick_char();
+            wrong_streak_ = 0;
+            flash_done_   = false;
+            input_len_    = 0;
+            input_[0]     = '\0';
+            clue_visible_ = false;
+            state_        = State::WAITING;
+            led_.set_rgb(0, 0, 0);
+        }
+    }
+
+    // Auto-reset after wrong
+    if (state_ == State::WRONG) {
+        uint32_t ms = static_cast<uint32_t>((now - result_us_) / 1000);
+        if (ms >= RESULT_DISPLAY_MS) {
+            input_len_ = 0;
+            input_[0]  = '\0';
+            state_     = State::WAITING;
+            led_.set_rgb(0, 0, 0);
+        }
+    }
+
+    // ── Draw ─────────────────────────────────────────────────────────────
+    Pen BG     = graphics_.create_pen(  0,   0,  30);
+    Pen WHITE  = graphics_.create_pen(255, 255, 255);
+    Pen YELLOW = graphics_.create_pen(255, 255,   0);
+    Pen GREEN  = graphics_.create_pen(  0, 220,   0);
+    Pen RED    = graphics_.create_pen(255,  60,  60);
+    Pen GREY   = graphics_.create_pen(150, 150, 150);
+
+    graphics_.set_pen(BG);
+    graphics_.clear();
+
+    // Target character — centred, large (scale 4 ≈ 32px wide per char)
+    char target_str[2] = { target_, '\0' };
+    graphics_.set_pen(WHITE);
+    graphics_.text(target_str, Point(104, 15), 240, 4);
+
+    // Input sequence — centred at mid-screen
+    if (input_visible_ && input_len_ > 0) {
+        int x = (240 - input_len_ * 12) / 2;
+        if (x < 5) x = 5;
+        graphics_.set_pen(YELLOW);
+        graphics_.text(input_, Point(x, 65), 240, 2);
+    }
+
+    // Clue (toggle with B-Long) — shown below input
+    if (clue_visible_ && state_ != State::CORRECT && state_ != State::WRONG) {
+        const char* code = code_for(target_);
+        int x = (240 - static_cast<int>(strlen(code)) * 12) / 2;
+        if (x < 5) x = 5;
+        graphics_.set_pen(GREY);
+        graphics_.text(code, Point(x, 95), 240, 2);
+    }
+
+    // Result feedback
+    if (state_ == State::CORRECT) {
+        graphics_.set_pen(GREEN);
+        graphics_.text("correct!", Point(60, 95), 240, 2);
+        if (!input_visible_) {
+            const char* code = code_for(target_);
+            int x = (240 - static_cast<int>(strlen(code)) * 12) / 2;
+            if (x < 5) x = 5;
+            graphics_.text(code, Point(x, 112), 240, 2);
+        }
+    } else if (state_ == State::WRONG) {
+        graphics_.set_pen(RED);
+        graphics_.text("wrong", Point(87, 90), 240, 2);
+        if (wrong_streak_ >= settings_.wrong_clue_after) {
+            const char* code = code_for(target_);
+            int x = (240 - static_cast<int>(strlen(code)) * 12) / 2;
+            if (x < 5) x = 5;
+            graphics_.set_pen(GREEN);
+            graphics_.text(code, Point(x, 112), 240, 2);
+        }
+    }
+}
+
+void MorseScreen::on_button(ButtonId id, PressType type) {
+    uint64_t now = time_us_64();
+
+    // Record Y press time for dit/dah measurement
+    if (id == ButtonId::Y && type == PressType::DOWN) {
+        y_down_us_ = now;
+        return;
+    }
+
+    // Y release or held long enough: classify dit vs dah
+    if (id == ButtonId::Y && (type == PressType::SHORT || type == PressType::LONG)) {
+        if (state_ == State::CORRECT) return;
+        // WRONG: dismiss feedback and start fresh attempt
+        if (state_ == State::WRONG) {
+            input_len_ = 0;
+            input_[0]  = '\0';
+            state_     = State::WAITING;
+            led_.set_rgb(0, 0, 0);
+        }
+        if (input_len_ >= 7) return;
+
+        char symbol;
+        if (type == PressType::LONG) {
+            symbol = '-'; // held past 500ms, always dah
+        } else {
+            uint32_t ms = static_cast<uint32_t>((now - y_down_us_) / 1000);
+            symbol = (ms >= settings_.dit_dah_ms) ? '-' : '.';
+        }
+
+        input_[input_len_++] = symbol;
+        input_[input_len_]   = '\0';
+        last_input_us_       = now;
+        state_               = State::INPUTTING;
+        return;
+    }
+
+    if (id == ButtonId::B && type == PressType::SHORT) {
+        // Stop/reset: clear current input
+        input_len_ = 0;
+        input_[0]  = '\0';
+        state_     = State::WAITING;
+        led_.set_rgb(0, 0, 0);
+    } else if (id == ButtonId::B && type == PressType::LONG) {
+        clue_visible_ = !clue_visible_;
+    } else if (id == ButtonId::X && type == PressType::SHORT) {
+        // Next trial
+        pick_char();
+        wrong_streak_ = 0;
+        input_len_    = 0;
+        input_[0]     = '\0';
+        clue_visible_ = false;
+        state_        = State::WAITING;
+        led_.set_rgb(0, 0, 0);
+    } else if (id == ButtonId::X && type == PressType::LONG) {
+        input_visible_ = !input_visible_;
+    }
+}

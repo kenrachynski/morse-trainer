@@ -1,6 +1,8 @@
 # Custom ignores
 .idea/
 cmake-build-*/
+.cache/
+build/
 
 # Created by https://www.toptal.com/developers/gitignore/api/cmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake
@@ -33,7 +35,7 @@ _deps
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
 
 # Thumbnails
 ._*
